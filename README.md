@@ -1,128 +1,252 @@
-[![PS2 project overview: allocation problem, three mechanisms, welfare framework, and synthetic simulation results](project-overview.png)](project-overview.png)
+<div align="center">
 
-# FP8 · Session D · PS2 Computational Artifact
+# Auctions with Risk Reserves for Scarce AI Research
 
-**Qianshuo (Aaron) Wang and Zhenning Wang — COMSCI/ECON 206, Professor Luyao Zhang**
+### When should an institution trade private-value efficiency for downside-risk coverage?
 
-**Can an auction with reserved capacity for objectively high-risk research requests improve the allocation of scarce AI research capacity relative to a pure auction?**
+**Qianshuo (Aaron) Wang · Zhenning Wang**  
+COMSCI/ECON 206 · Computational Microeconomics  
+Professor Luyao Zhang · Duke Kunshan University · Autumn 2026  
+**Team FP8**
 
-This repository implements **Section 3**, using the one-batch model in Section 2. All values and risk inputs are synthetic. It is a mechanism comparison under specified bids, not a computation of Bayesian Nash equilibrium and not evidence about actual investment returns. Sections 1–5 are joint work. Qianshuo (Aaron) Wang and Zhenning Wang jointly developed the research question, mechanism comparison, welfare framework, and linked artifacts. Individual intellectual decisions, outputs, verification steps, and responsibilities are documented in the final PS2 Author Notes.
+**Baseline finding:** Across 1,000 matched synthetic batches, the hybrid mechanism
+increases modeled welfare by **+9.78** at $\lambda=1$, but strictly improves welfare
+in only **43.8%** of batches.
 
-## Final release and canonical repository
+<p align="center">
+  <a href="https://colab.research.google.com/drive/1I-J52wxGaAIwJK_LjtghBnXS2GxY0U2V"><img src="https://img.shields.io/badge/COLAB-RUN-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=orange" alt="Open in Colab"></a>
+  <a href="https://huggingface.co/spaces/dku-comsci-econ206-2026/PS2_Qianshuo_Zhenning"><img src="https://img.shields.io/badge/HUGGING_FACE-DEMO-FFD21E?style=for-the-badge&logo=huggingface&logoColor=yellow" alt="Hugging Face"></a>
+</p>
 
-Canonical course repository:
-https://github.com/dku-comsci-econ206-Autumn2026/PS2_FP8_Qianshuo_Zhenning
+</div>
 
-Notebook: 
-[https://github.com/dku-comsci-econ206-Autumn2026/PS2_Qianshuo_Zhenning/blob/main/PS2_Code.ipynb](https://colab.research.google.com/drive/1I-J52wxGaAIwJK_LjtghBnXS2GxY0U2V#scrollTo=QI1TUTULTNPj)
+---
 
-Hugging Face Space:
-https://huggingface.co/spaces/dku-comsci-econ206-2026/PS2_Qianshuo_Zhenning
+> [!IMPORTANT]
+> ### Conditional result — not universal dominance
+>
+> Across **1,000 matched synthetic batches** under the primary specification:
+>
+> | Outcome | Hybrid − Pure |
+> |---|---:|
+> | Private research value $\Delta V$ | **−26.82** |
+> | Risk coverage $\Delta C$ | **+36.59** |
+> | Welfare $\Delta W$ at $\lambda=1$ | **+9.78** |
+> | Monte Carlo SE | **0.89** |
+> | Break-even welfare weight $\lambda^*$ | **0.733** |
+> | Batches with $\Delta W>0$ at $\lambda=1$ | **43.8%** |
+>
+> The hybrid therefore improves **mean modeled welfare under the baseline
+> specification**, but it does not universally dominate the pure auction.
 
-A0 Poster:
-https://canva.link/vlx5ljli23z7qk8
+> [!NOTE]
+> ### Evidence boundary
+>
+> All values and risk inputs are **synthetic**. The project is a mechanism
+> comparison under specified bids, not a solved multi-slot Bayesian Nash
+> equilibrium and not evidence about realized investment returns.
+>
+> The baseline bid rule $b_i=0.8v_i$ is a stylized simulation assumption.
+> The risk score is a modeled, bid-independent input rather than an
+> empirically validated operational financial-risk model. No simulated
+> bids are treated as human behavioral evidence.
 
+---
 
-## Run and verify
+## Research Question
 
-Python 3.9+; no third-party packages for the simulation or tests. The recorded fresh run used Python 3.9.6 on September 26, 2026.
+**Can a hybrid mechanism that combines auction-based allocation with reserved
+capacity for objectively high-risk research requests improve the allocation of
+scarce AI research capacity relative to a pure first-price auction?**
 
-```sh
+We study an active asset-management setting in which portfolio managers compete
+for a limited number of premium AI research slots.
+
+The central trade-off is between:
+
+- **private research value**, represented by PMs' private values and bids; and
+- **downside-risk coverage**, represented in the model by a public,
+  bid-independent risk score.
+
+For the hybrid mechanism $H$ relative to the pure auction $P$:
+
+$$
+W(H)>W(P)
+\iff
+\lambda \Delta C > L,
+$$
+
+where
+
+- $\Delta C=C(H)-C(P)$ is additional risk coverage,
+- $L=V(P)-V(H)$ is displaced private research value, and
+- $\lambda$ is the firm's welfare weight on risk coverage.
+
+The reserve is therefore justified only when the modeled value of additional
+risk coverage is large enough to compensate for the private value it displaces.
+
+---
+
+## Mechanisms at a Glance
+
+| Mechanism | Allocation | Payment | Role in Comparison |
+|---|---|---|---|
+| **Pure First-Price Auction** | Four highest bids receive the four slots | Winners pay their own bids | Private-value benchmark |
+| **Hybrid Risk-Reserve Auction** | Up to one slot goes to the highest-risk eligible request; remaining slots are auctioned | Reserve winner pays 0; auction winners pay own bids | Proposed mechanism |
+| **First-Come, First-Served** | First four requests in an exogenous random arrival order | No payment | Non-strategic reference |
+
+Baseline hybrid policy:
+
+$$
+R=1,\qquad r^*=60.
+$$
+
+---
+
+## Project Overview
+
+![Project workflow](project-overview.png)
+
+The computational pipeline uses the same synthetic batch across mechanisms so
+that Pure, Hybrid, and FCFS outcomes can be compared on matched requests.
+
+---
+
+## Final Presentation Poster
+
+> **Final poster pending.**
+>
+> The final release will contain one editable **A0 landscape PowerPoint slide
+> (1189 × 841 mm)** together with the exported PDF and readable PNG preview.
+>
+> Required repository files will be:
+>
+> `poster/final-poster.pptx`  
+> `poster/final-poster.pdf`  
+> `poster/final-poster.png`
+>
+> Once finalized, the PNG preview will be embedded directly in this root README
+> and linked to the repository-hosted PDF.
+
+<!--
+FINAL RELEASE: Replace this placeholder with:
+
+![Final presentation poster](poster/final-poster.png)
+
+[Download the poster PDF](poster/final-poster.pdf)
+
+Do not remove the embedded preview from the root README.
+-->
+
+---
+
+## Research Artifacts
+
+| Artifact | Access | Status |
+|---|---|---|
+| **Canonical GitHub Repository** | This repository | Current |
+| **Computational Notebook** | [Open in Google Colab](https://colab.research.google.com/drive/1I-J52wxGaAIwJK_LjtghBnXS2GxY0U2V) | Runnable |
+| **Archived Notebook** | [`PS2_Code.ipynb`](PS2_Code.ipynb) | Available |
+| **Hugging Face Space** | [Open behavioral interface](https://huggingface.co/spaces/dku-comsci-econ206-2026/PS2_Qianshuo_Zhenning) | Available |
+| **Core Simulation** | [`simulation.py`](simulation.py) | Available |
+| **Mechanism Tests** | [`test_simulation.py`](test_simulation.py) | Available |
+| **Reproduction Script** | [`verify_reproduction.py`](verify_reproduction.py) | Available |
+| **Verification Record** | [`verification.txt`](verification.txt) | Available |
+| **Primary Summary** | [`primary_summary.csv`](primary_summary.csv) | Available |
+| **Fresh Run Metadata** | [`fresh_run.json`](fresh_run.json) | Available |
+| **Final Paper** | Repository copy to be added | Pending |
+| **Final A0 Poster** | PDF + PNG + editable PPTX to be added | Pending |
+| **Final Tested Release** | Commit/tag to be recorded | Pending |
+
+---
+
+## Primary Computational Design
+
+| Parameter | Primary Setting |
+|---|---:|
+| Portfolio managers | $N=20$ |
+| AI research slots | $K=4$ |
+| Credit budget | $M=100$ |
+| Reserve slots | $R=1$ |
+| Risk threshold | $r^*=60$ |
+| Welfare weight | $\lambda=1$ |
+| Private value | $v_i\sim U[0,100]$ |
+| Exposure | $E_i\sim U[0,1]$ |
+| Severity | $S_i\sim U[0,1]$ |
+| Risk score | $r_i=100E_iS_i$ |
+| Baseline bid rule | $b_i=0.8v_i$ |
+| Matched synthetic batches | **1,000** |
+| Random seed | `20260926` |
+
+The same requests, values, risk scores, and bids are used across mechanisms
+within each matched batch.
+
+---
+
+## Primary Results
+
+Mean outcomes under the primary specification:
+
+| Mechanism | Private Value $V$ | Risk Coverage $C$ | Welfare $W$ | Payments | PM Utility |
+|---|---:|---:|---:|---:|---:|
+| **Pure First-Price** | 353.08 | 101.35 | 454.43 | 282.46 | 70.62 |
+| **Hybrid, $R=1$** | 326.26 | 137.95 | **464.20** | 226.98 | 99.28 |
+| **FCFS** | 199.45 | 100.43 | 299.88 | 0.00 | 199.45 |
+
+Relative to the pure auction, the hybrid:
+
+- sacrifices **26.82** units of private research value;
+- adds **36.59** units of modeled risk coverage;
+- raises mean welfare by **9.78** at $\lambda=1$;
+- has paired Monte Carlo SE **0.89**;
+- has a mean break-even welfare weight of approximately
+  **$\lambda^*=0.733$**.
+
+At $\lambda=0.5$:
+
+$$
+\Delta W=-8.52.
+$$
+
+Moreover, the hybrid strictly improves welfare in only **43.8% of individual
+batches** at $\lambda=1$.
+
+The appropriate interpretation is therefore **conditional adoption**, not
+universal superiority.
+
+---
+
+## Sensitivity Analysis
+
+The computational artifact evaluates **36 scenarios** varying:
+
+- risk threshold $r^*\in\{40,60,80\}$;
+- reserve size $R\in\{1,2\}$;
+- welfare weight $\lambda\in\{0,0.5,1,2\}$;
+- value–risk alignment; and
+- common versus heterogeneous bid shading.
+
+At $r^*=60$ and $R=1$:
+
+| Scenario | Mean Hybrid − Pure $W$ |
+|---|---:|
+| Common shading, positive rank alignment | 0.00 |
+| Common shading, negative rank alignment | −3.24 |
+| Heterogeneous shading, independent case | +13.12 |
+
+These are **computational sensitivity results**, not observations of human
+behavior.
+
+The mechanism ranking depends on the welfare weight, value–risk relationship,
+bidding assumptions, reserve size, and risk threshold.
+
+---
+
+## Run and Verify
+
+Python 3.9+ is sufficient for the simulation and tests.
+
+```bash
 python3 -m unittest -v test_simulation.py
 python3 simulation.py --seed 20260926 --batches 1000 --out results
 python3 verify_reproduction.py
-```
-
-The last command runs the six mechanism tests, regenerates the outputs in a temporary directory, and compares every CSV cell against the actual reference run (numeric tolerance 1e-10). It also checks the reference source fingerprint. `results/` is created by the run. `reference_outputs.zip` contains the five complete reference CSVs and `fresh_run.json`; `primary_summary.csv`, `demo_inputs.csv`, and `fresh_run.json` are also provided separately for easy inspection. The demo is batch 1, selected in advance, not a favorable batch.
-
-**Notebook:** The current runnable Colab notebook is:
-https://colab.research.google.com/drive/1I-J52wxGaAIwJK_LjtghBnXS2GxY0U2V#scrollTo=QI1TUTULTNPj
-
-An archived copy of the notebook is stored in the repository as:
-`PS2_Code.ipynb`
-
-After the final merge, the canonical GitHub notebook path is:
-https://github.com/dku-comsci-econ206-Autumn2026/PS2_Qianshuo_Zhenning/blob/main/PS2_Code.ipynb
-
-The organization-owned repository, rather than a personal fork, is the canonical final source.
-
-## Parameters and interpretation
-
-| Parameter | Primary setting | Reason / scope |
-|---|---|---|
-| PMs, slots, unit demand | N=20, K=4, at most one per PM | User's one-shot setting |
-| Credits | M=100 each | One unused credit has one unit of fixed outside value |
-| Private research value | v independently uniform on [0,100] | Synthetic, budget nonbinding for baseline bids |
-| Exposure E and severity S | Independent uniform [0,1], independent of v | Synthetic normalized inputs, not calibrated financial quantities |
-| Risk score | r=100 E S | Public, audited and frozen before reserve allocation and bidding |
-| Eligibility | r >= 60 | Illustrative policy threshold, not an estimated optimal threshold |
-| Reserve size | R=1 | Highest-risk eligible PM gets a free slot and exits |
-| Auction bids | b=0.8v | Stylized monotone shading, held fixed across mechanisms; not multi-slot BNE |
-| Arrival | Random exogenous permutation | Same order for matched FCFS comparisons |
-| Welfare weight | lambda=1 | Normative index W=V+lambda C; sensitivity 0, 0.5, 1, 2 |
-| Repetitions | 1,000 independently generated batches | Monte Carlo replications, **not sequential rounds played by the same PMs** |
-| Seed | 20260926 | Fixed before inspection; no seed search |
-| Tie rule | Lower PM ID | Public deterministic rule, no bid-dependent risk tie-breaking |
-
-Full payoff is x*v+(100-p). Subtracting the fixed 100 yields u=x*v-p. Outside opportunities introduce no strategic stage here. Each batch terminates after a single sealed-bid allocation and payment, with no feedback, carryover, learning or subsequent strategic choice. The 1,000 replications therefore do not turn the model into a dynamic game.
-
-## Language-independent algorithm
-
-```text
-FOR each synthetic batch:
-    draw 20 private values, frozen exposure/severity scores, and an arrival order
-    fix assumed bids (same PM bid under each mechanism)
-    PURE: award four slots to highest bids; each winner pays own bid
-    HYBRID:
-        rank eligible requests (r >= threshold) by descending risk
-        award up to R reserved slots at zero payment; remove their recipients
-        return any unused reserved slots to the auction
-        award remaining capacity to highest remaining bids; pay own bid
-    FCFS: award four slots by exogenous arrival order; no payment
-    resolve ties by lower PM ID; stop after the batch; no PM receives two slots
-    record winner IDs, payments, utilities, V, C, W, efficiency, eligible access
-COMPARE paired hybrid-minus-pure outcomes; average across independent batches
-REPEAT for predeclared threshold, reserve, value–risk alignment and bid scenarios
-```
-
-The auction mapping is four indivisible premium AI research slots, 20 unit-demand PMs, private values, verified public risk, one simultaneous sealed bid, a deterministic allocation, and internal-credit first-price payments. Desired improvement is a transparent trade-off between private value and risk coverage. The application boundary is important: verified risk is not a report whose truthfulness is established by the mechanism; risk coverage is not avoided loss; correlated/common financial values, strategic portfolio choice, endogenous arrival, resale, complementarities and future rounds are excluded.
-
-## Metrics and actual fresh-run results
-
-V=sum of allocated private values; C=sum of their risk scores; W=V+lambda*C. Total PM utility is V minus total payments. Payments are transfers inside the firm, so are not subtracted again from W. Private-value efficiency is V divided by the sum of the top four values. Eligible access is the fraction of eligible requests served, averaged only over batches with at least one eligible request (blank/NA otherwise).
-
-Mean per batch, primary settings:
-
-| Mechanism | V | C | W (lambda=1) | Payments | Total PM utility |
-|---|---:|---:|---:|---:|---:|
-| Pure first-price | 353.08 | 101.35 | 454.43 | 282.46 | 70.62 |
-| Hybrid, R=1 | 326.26 | 137.95 | 464.20 | 226.98 | 99.28 |
-| FCFS | 199.45 | 100.43 | 299.88 | 0.00 | 199.45 |
-
-Hybrid sacrifices 26.82 private-value units and adds 36.59 risk-score units. Mean W rises 9.78 at lambda=1 (paired Monte Carlo SE 0.89), but falls 8.52 at lambda=0.5. The ratio of mean value loss to mean coverage gain is 0.733; this is the break-even weight for **mean** W in this sample, not the mean of individual batch thresholds. Hybrid strictly improves W in 43.8% of all batches at lambda=1, so a positive average must not be called universal dominance. Its private-value efficiency averages 92.42% versus 100% for the pure auction under the common monotone bid rule; eligible access averages 66.70% versus 20.29%.
-
-The code evaluates 36 scenarios: thresholds {40,60,80}, R in {1,2}, three alignments, and two bidding rules. The alignment stress tests keep the same value multiset and risk scores but sort values with risk or against risk. These are deliberately extreme dependence tests, not independent-value models. Heterogeneous shading draws an independent factor uniform on [0.5,1] for each PM and holds it fixed across mechanisms. These draws model hypothetical behavior, not observed peer behavior. The primary rule ignores changes in equilibrium bidding induced by the reserve, which is a substantive limitation.
-
-At threshold 60 and R=1, common shading gives mean hybrid-minus-pure W of 0 under perfect positive rank alignment and -3.24 under negative rank alignment (lambda=1). With heterogeneous shading these become +10.75 and -2.34; the independent case is +13.12. Thus the project decision is conditional: do not recommend a reserve from eligibility alone; establish the firm's welfare weight and value–risk relationship, then test sensitivity to actual bids. Changing a *common* shading coefficient alone cannot change allocation rankings in this unconstrained setting.
-
-Monte Carlo SE describes simulation sampling uncertainty, not empirical confidence about financial performance or classroom behavior. BNE remains an economic benchmark; the simulation does not solve it. Risk scores are observable within the modeled batch; values and latent shading factors are not made public by the simulation assumption.
-
-## Files, verification, and evidence status
-
-- `simulation.py`: synthetic generator, allocation rules, metrics and 36 scenarios.
-- `test_simulation.py`: six tests covering fallback, known displacement/payments, reserve already an auction winner, score/bid ties and threshold equality, budget cap/duplicate rejection, and paired allocation/accounting invariants.
-- `PS2_comparison.ipynb`: independently runnable, executed notebook.
-- `reference_outputs.zip`: actual outputs, including winner IDs for every primary batch and all 60 PM-mechanism outcomes for the demo.
-- `fresh_run.json`: seed, parameters, Python version, source SHA-256, output SHA-256 fingerprints.
-- `verify_reproduction.py` and `verification.txt`: clean rerun comparison and its actual record.
-- `HF_handoff.md`: shared schema and behavioral interface; no fabricated participant responses.
-
-Completed: synthetic comparison, six tests, clean rerun, executed notebook, Hugging Face behavioral interface, A0 poster integration, and symposium peer review.
-
-## AI use and license
-
-OpenAI ChatGPT and Codex assisted with model clarification, code and notebook review, debugging, reproducibility checks, literature checking, and language editing. The authors independently reviewed the final assumptions, parameter choices, outputs, interpretations, and limitations and remain responsible for all claims and results.
-
-No human behavioral outcomes were fabricated or inferred. Completed computational evidence, exploratory behavioral evidence, and planned future work are labeled separately.
-
-This repository includes an MIT License for the authors' original code and project files where applicable. External software and referenced sources remain under their own licenses and terms.
