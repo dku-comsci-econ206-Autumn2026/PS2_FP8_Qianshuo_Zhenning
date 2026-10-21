@@ -129,33 +129,6 @@ that Pure, Hybrid, and FCFS outcomes can be compared on matched requests.
 
 ---
 
-## Final Presentation Poster
-
-> **Final poster pending.**
->
-> The final release will contain one editable **A0 landscape PowerPoint slide
-> (1189 × 841 mm)** together with the exported PDF and readable PNG preview.
->
-> Required repository files will be:
->
-> `poster/final-poster.pptx`  
-> `poster/final-poster.pdf`  
-> `poster/final-poster.png`
->
-> Once finalized, the PNG preview will be embedded directly in this root README
-> and linked to the repository-hosted PDF.
-
-<!--
-FINAL RELEASE: Replace this placeholder with:
-
-![Final presentation poster](poster/final-poster.png)
-
-[Download the poster PDF](poster/final-poster.pdf)
-
-Do not remove the embedded preview from the root README.
--->
-
----
 
 ## Research Artifacts
 
