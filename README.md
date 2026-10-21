@@ -15,14 +15,18 @@ in only **43.8%** of batches.
 
 <p align="center">
   <a href="https://colab.research.google.com/drive/1I-J52wxGaAIwJK_LjtghBnXS2GxY0U2V"><img src="https://img.shields.io/badge/COLAB-RUN-F9AB00?style=for-the-badge&logo=googlecolab&logoColor=orange" alt="Open in Colab"></a>
-  <a href="https://huggingface.co/spaces/dku-comsci-econ206-2026/PS2_Qianshuo_Zhenning"><img src="https://img.shields.io/badge/HUGGING_FACE-DEMO-FFD21E?style=for-the-badge&logo=huggingface&logoColor=yellow" alt="Hugging Face"></a>
-  <a href="poster/final-poster.pdf">
-    <img src="https://img.shields.io/badge/POSTER-PDF-blue?style=for-the-badge" alt="Final Poster PDF"></a>
+  <a href="https://huggingface.co/spaces/dku-comsci-econ206-2026/Final_Zhenning_Qianshuo_PM_Bid"><img src="https://img.shields.io/badge/HUGGING_FACE-DEMO-FFD21E?style=for-the-badge&logo=huggingface&logoColor=yellow" alt="Hugging Face"></a>
+  <a href="poster/final-poster.pdf"><img src="https://img.shields.io/badge/POSTER-PDF-blue?style=for-the-badge" alt="Final Poster PDF"></a>
+  <a href="paper/Final-FP08-Qianshuo-Zhenning.pdf"><img src="https://img.shields.io/badge/PAPER-PDF-7B61FF?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Final Paper"></a>
 </p>
 
 </div>
 
 ---
+## Final Paper
+
+[**View the full final paper (PDF)**](paper/Final-FP08-Qianshuo-Zhenning.pdf)
+
 ## Final Presentation Poster
 
 ![Final presentation poster](poster/FP08_Final_A0_Poster.png)
@@ -155,22 +159,24 @@ Do not remove the embedded preview from the root README.
 
 ## Research Artifacts
 
+[Local behavioral Space source](hf_space/) · [Live Hugging Face Space](https://huggingface.co/spaces/dku-comsci-econ206-2026/Final_Zhenning_Qianshuo_PM_Bid). Behavioral evidence remains planned; the interface is exploratory.
+
 | Artifact | Access | Status |
 |---|---|---|
 | **Canonical GitHub Repository** | This repository | Current |
 | **Computational Notebook** | [Open in Google Colab](https://colab.research.google.com/drive/1I-J52wxGaAIwJK_LjtghBnXS2GxY0U2V) | Runnable |
-| **Archived Notebook** | [`PS2_Code.ipynb`](PS2_Code.ipynb) | Available |
-| **Hugging Face Space** | [Open behavioral interface](https://huggingface.co/spaces/dku-comsci-econ206-2026/PS2_Qianshuo_Zhenning) | Available |
+| **Archived Notebook** | [`code.ipynb`](code.ipynb) | Available |
+| **Hugging Face Space** | [Open behavioral interface](https://huggingface.co/spaces/dku-comsci-econ206-2026/Final_Zhenning_Qianshuo_PM_Bid) | Available |
+| **Hugging Face Source** | [`hf_space/`](hf_space/) | Available |
 | **Core Simulation** | [`simulation.py`](simulation.py) | Available |
 | **Mechanism Tests** | [`test_simulation.py`](test_simulation.py) | Available |
 | **Reproduction Script** | [`verify_reproduction.py`](verify_reproduction.py) | Available |
 | **Verification Record** | [`verification.txt`](verification.txt) | Available |
 | **Primary Summary** | [`primary_summary.csv`](primary_summary.csv) | Available |
 | **Fresh Run Metadata** | [`fresh_run.json`](fresh_run.json) | Available |
-| **Final Paper** | Repository copy to be added | Pending |
-| **Final A0 Poster** | PDF + PNG + editable PPTX to be added | Pending |
-| **Final Tested Release** | Commit/tag to be recorded | Pending |
-
+| **Final Paper** | [View final paper](paper/Final-FP08-Qianshuo-Zhenning.pdf) | Available |
+| **Final A0 Poster** | [PDF](poster/FP08_Final_A0_Poster.pdf) · [PNG](poster/FP08_Final_A0_Poster.png) · [Editable PPTX](poster/FP08_Final_A0_Poster.pptx) | Available |
+| **Final Tested Release** | Final synchronized commit/tag to be recorded | Pending |
 ---
 
 ## Primary Computational Design

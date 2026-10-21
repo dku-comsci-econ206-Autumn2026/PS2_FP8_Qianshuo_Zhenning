@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Team FP8 browser-only research artifact comparing FCFS, pure first-price auction, and a verified-risk reserve for scarce AI research capacity.">
+  <title>FP8 · Auctions with Risk Reserves</title>
+  <style>
+    :root {
+      --ink: #102a2b;
+      --muted: #587071;
+      --paper: #f7f6f1;
+      --card: #fffefa;
+      --line: #d8ded8;
+      --teal: #0f766e;
+      --teal-dark: #115e59;
+      --aqua: #ccfbf1;
+      --blue: #1d4ed8;
+      --amber: #b45309;
+      --amber-bg: #fffbeb;
+      --shadow: 0 18px 45px rgba(15, 47, 45, .10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% -5%, rgba(153, 246, 228, .55), transparent 26rem),
+        radial-gradient(circle at 100% 0%, rgba(191, 219, 254, .5), transparent 30rem),
+        var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a { color: var(--blue); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(1160px, calc(100% - 32px)); margin: 24px auto 60px; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(32px, 7vw, 72px);
+      color: #f8fafc;
+      border-radius: 28px;
+      background: linear-gradient(135deg, #0f172a 0%, #164e63 55%, #0f766e 100%);
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      right: -100px;
+      top: -160px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 50%;
+      box-shadow: 0 0 0 55px rgba(255,255,255,.04), 0 0 0 110px rgba(255,255,255,.03);
+    }
+    .eyebrow { color: #99f6e4; font-size: .76rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { max-width: 900px; margin: 12px 0 18px; font-size: clamp(2.35rem, 6vw, 5rem); line-height: .98; letter-spacing: -.055em; }
+    .hero p { max-width: 820px; margin: 0; color: #dbeafe; font-size: clamp(1rem, 2vw, 1.2rem); }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .pill { padding: 7px 12px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; background: rgba(255,255,255,.08); font-size: .82rem; }
+
+    .tabbar {
+      position: sticky;
+      top: 10px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin: 18px 0;
+      padding: 8px;
+      border: 1px solid rgba(216, 222, 216, .9);
+      border-radius: 15px;
+      background: rgba(247, 246, 241, .9);
+      backdrop-filter: blur(14px);
+    }
+    .tabbar button { flex: 0 0 auto; border: 0; border-radius: 10px; padding: 10px 14px; color: var(--muted); background: transparent; font-weight: 750; }
+    .tabbar button.active { color: white; background: var(--teal); }
+    .panel { display: none; }
+    .panel.active { display: block; animation: reveal .22s ease-out; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .section-card { margin-top: 18px; padding: clamp(20px, 4vw, 34px); border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,254,250,.93); box-shadow: 0 8px 24px rgba(15,47,45,.05); }
+    h2 { margin: 0 0 8px; font-size: clamp(1.65rem, 3vw, 2.35rem); letter-spacing: -.035em; }
+    h3 { margin: 0 0 8px; }
+    .lede { max-width: 850px; color: var(--muted); font-size: 1.03rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 22px 0; }
+    .mechanism { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+    .mechanism .number { width: 34px; height: 34px; display: grid; place-items: center; margin-bottom: 18px; color: #fff; border-radius: 50%; background: var(--teal); font-weight: 800; }
+    .mechanism p { color: var(--muted); }
+    .formula { overflow-x: auto; padding: 18px 20px; border-left: 4px solid var(--teal); border-radius: 0 14px 14px 0; background: #ecfdf5; }
+    .warning { overflow-x: auto; padding: 18px 20px; border-left: 4px solid var(--amber); border-radius: 0 14px 14px 0; background: var(--amber-bg); }
+    code { padding: .15rem .38rem; border-radius: 6px; background: #eef2f1; font-size: .93em; }
+
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+    label { display: block; color: var(--muted); font-size: .86rem; font-weight: 750; }
+    input, select, textarea {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px 12px;
+      color: var(--ink);
+      border: 1px solid #cbd5d1;
+      border-radius: 10px;
+      background: white;
+    }
+    textarea { min-height: 105px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { outline: 3px solid rgba(20, 184, 166, .16); border-color: var(--teal); }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+    .primary, .secondary {
+      border: 1px solid var(--teal);
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-weight: 800;
+    }
+    .primary { color: white; background: var(--teal); }
+    .primary:hover { background: var(--teal-dark); }
+    .secondary { color: var(--teal-dark); background: white; }
+    .table-wrap { overflow-x: auto; margin: 15px 0; border: 1px solid var(--line); border-radius: 14px; background: white; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #e8ece9; text-align: left; white-space: nowrap; }
+    th { color: #365554; background: #f1f5f3; font-size: .78rem; letter-spacing: .03em; text-transform: uppercase; }
+    tr:last-child td { border-bottom: 0; }
+    table input { min-width: 95px; margin: 0; padding: 7px 8px; }
+    .result-box { margin-top: 18px; padding: 18px; border: 1px solid #99f6e4; border-radius: 14px; background: #f0fdfa; }
+    .result-box:empty { display: none; }
+    .record { min-height: 250px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .82rem; }
+    .status { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border-radius: 999px; color: #92400e; background: #fef3c7; font-size: .8rem; font-weight: 800; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .metric { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+    .metric strong { display: block; color: var(--teal-dark); font-size: 1.35rem; }
+    .metric span { color: var(--muted); font-size: .82rem; }
+    .footer { padding: 30px 5px; color: var(--muted); font-size: .88rem; }
+
+    @media (max-width: 820px) {
+      .grid-3, .controls, .split { grid-template-columns: 1fr; }
+      .shell { width: min(100% - 18px, 1160px); margin-top: 10px; }
+      .hero { border-radius: 20px; }
+      .tabbar { top: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="eyebrow">COMSCI/ECON 206 · Team FP8</div>
+      <h1>Auctions with Risk Reserves for Scarce AI Research</h1>
+      <p>When portfolio managers compete for four premium AI research slots, when does one verified-risk reserve justify the private value it displaces?</p>
+      <div class="hero-meta">
+        <span class="pill">20 portfolio managers</span>
+        <span class="pill">4 AI research slots</span>
+        <span class="pill">3 allocation mechanisms</span>
+        <span class="pill">Browser-only artifact</span>
+      </div>
+    </header>
+
+    <nav class="tabbar" aria-label="Artifact sections">
+      <button class="active" data-panel="setting">Decision setting</button>
+      <button data-panel="lab">Mechanism lab</button>
+      <button data-panel="behavior">Behavioral round</button>
+      <button data-panel="peer">Peer play</button>
+      <button data-panel="evidence">Evidence</button>
+      <button data-panel="methods">Methods & sources</button>
+    </nav>
+
+    <section id="setting" class="panel active">
+      <article class="section-card">
+        <h2>The asset-manager decision</h2>
+        <p class="lede">During earnings season, 20 risk-neutral portfolio managers compete for four identical premium AI research slots. Each PM privately knows the value of access. The risk team freezes a public risk score before bidding.</p>
+        <div class="grid-3">
+          <div class="mechanism">
+            <div class="number">1</div>
+            <h3>FCFS</h3>
+            <p>The first four requests in an exogenous random arrival order receive slots. Payment is zero.</p>
+            <strong>Non-price baseline</strong>
+          </div>
+          <div class="mechanism">
+            <div class="number">2</div>
+            <h3>Pure first-price auction</h3>
+            <p>All four slots go to the highest sealed bids. Each winner pays their own bid.</p>
+            <strong>Private-value benchmark</strong>
+          </div>
+          <div class="mechanism">
+            <div class="number">3</div>
+            <h3>Hybrid</h3>
+            <p>The highest-risk request with <code>r ≥ 60</code> receives one free slot and exits. Three remaining slots are auctioned. If no request qualifies, all four return to auction. Ties in risk scores or bids are broken by fixed PM ID.</p>
+            <strong>Verified-risk priority</strong>
+          </div>
+        </div>
+        <div class="split">
+          <div>
+            <h3>Fixed baseline</h3>
+            <ul>
+              <li><code>N=20</code>, <code>K=4</code>, <code>M=100</code></li>
+              <li><code>vᵢ ∈ [0,100]</code></li>
+              <li><code>rᵢ = 100EᵢSᵢ</code>, frozen before bidding</li>
+              <li>Assumed synthetic bid <code>bᵢ = 0.8vᵢ</code></li>
+              <li>Reserve size <code>R=1</code>; threshold <code>r*=60</code></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Shared research question</h3>
+            <p>Can a hybrid mechanism that combines auction-based allocation with reserved capacity for objectively high-risk research requests improve the allocation of scarce AI research capacity relative to a pure first-price auction?</p>
+          </div>
+        </div>
+        <div class="warning"><strong>Two different bid rules:</strong> <code>b=0.8v</code> is an assumed multi-slot simulation rule, not an equilibrium result. The exact <code>b(v)=0.75v</code> BNE applies only to the separate four-bidder, single-slot behavioral benchmark.</div>
+        <div class="formula"><strong>Decision rule:</strong> For hybrid H and pure first-price auction P, let ΔC = C(H) − C(P) and L = V(P) − V(H). The hybrid improves the stated firm index exactly when <strong>λΔC &gt; L</strong>.</div>
+      </article>
+    </section>
+
+    <section id="lab" class="panel">
+      <article class="section-card">
+        <h2>Three-mechanism lab</h2>
+        <p class="lede">Compare FCFS, pure first-price auction, and hybrid allocation on the same 20 synthetic requests. The page recalculates <code>r=100ES</code> and the assumed simulation bid <code>b=0.8v</code>. Lower fixed PM ID breaks exact ties in arrivals, risk scores, and bids. This browser example is separate from the proposal's reported 1,000-batch run.</p>
+        <div class="controls">
+          <label>Browser example seed<input id="batch-seed" type="number" value="20260926" step="1"></label>
+          <label>Firm welfare weight λ<select id="lambda"><option>0</option><option>0.5</option><option selected>1</option><option>2</option></select></label>
+          <div><label>Fixed mechanism settings</label><p><code>K=4</code> · <code>R=1</code> · <code>r*=60</code></p></div>
+        </div>
+        <div class="actions">
+          <button class="secondary" id="generate-batch">Generate matched batch</button>
+          <button class="primary" id="run-comparison">Run all three mechanisms</button>
+        </div>
+        <div class="table-wrap">
+          <table id="batch-table">
+            <thead><tr><th>PM ID</th><th>Arrival</th><th>Private value v</th><th>Exposure E</th><th>Severity S</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="comparison-note" class="result-box"></div>
+        <div id="summary-output"></div>
+        <div id="winner-output"></div>
+      </article>
+    </section>
+
+    <section id="behavior" class="panel">
+      <article class="section-card">
+        <span class="status"><span class="dot"></span> Awaiting actual peer-play observations</span>
+        <h2 style="margin-top:14px">Fixed-payoff framing round</h2>
+        <p class="lede">This is a separate one-slot first-price auction with four symmetric bidders. It tests whether people bid like the rational first-price benchmark, especially whether loss framing moves bids away from it. It does not directly test Hybrid versus Pure. Under risk neutrality and independent uniform private values, the benchmark is <code>b(v)=3v/4</code>.</p>
+        <div class="formula"><strong>Experimental validity:</strong> Gain and Loss treatments hold private value, opponent-value distribution, winning rule, payment rule, and numerical payoff constant. Only the wording changes: <strong>same economic payoff + different framing</strong>.</div>
+        <div class="controls">
+          <label>Assigned treatment<select id="frame"><option>Gain frame</option><option>Loss frame</option></select></label>
+          <label>Your private value v<input id="self-value" type="number" min="0" max="100" value="80"></label>
+          <label>Opponent-value seed<input id="opponent-seed" type="number" value="206" step="1"></label>
+        </div>
+        <div id="frame-prompt" class="formula"></div>
+        <div class="controls">
+          <label>Your sealed bid<input id="self-bid" type="number" min="0" max="100" value="60"></label>
+          <label>Main reason before result<select id="self-reason"><option>Follow the rational benchmark</option><option>Increase the chance of winning</option><option>Avoid paying too much</option><option>Respond to the wording or emotion</option><option>Other</option></select></label>
+          <label>Choice confidence: <span id="confidence-label">70</span>/100<input id="confidence" type="range" min="0" max="100" value="70"></label>
+        </div>
+        <label>After choosing, what would make you change this bid?<textarea id="self-reflection" placeholder="Write one concrete reason or observation."></textarea></label>
+        <div class="actions"><button class="primary" id="settle-self">Reveal opponents and settle round</button></div>
+        <div id="self-outcome" class="result-box"></div>
+        <div id="self-table"></div>
+        <label>Copyable self-reflection record<textarea id="self-record" class="record" readonly></textarea></label>
+      </article>
+    </section>
+
+    <section id="peer" class="panel">
+      <article class="section-card">
+        <span class="status"><span class="dot"></span> Exploratory peer play</span>
+        <h2 style="margin-top:14px">Structured four-person round</h2>
+        <ol>
+          <li>Assign all four participants the same frame.</li>
+          <li>Give each person a private value and collect sealed bids before revealing any value.</li>
+          <li>Enter values and bids after the reveal, then settle the round.</li>
+          <li>Compare each bid with <code>0.75v</code> and record one observation that could change the model or interface.</li>
+        </ol>
+        <label style="max-width:360px">Assigned treatment<select id="peer-frame"><option>Gain frame</option><option>Loss frame</option></select></label>
+        <div class="table-wrap">
+          <table id="peer-table">
+            <thead><tr><th>PM ID</th><th>Private value v</th><th>Submitted bid b</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <label>Peer observation<textarea id="peer-note" placeholder="What pattern did the group notice, and what assumption might it affect?"></textarea></label>
+        <div class="actions"><button class="primary" id="settle-peer">Settle peer round</button></div>
+        <div id="peer-outcome" class="result-box"></div>
+        <div id="peer-results"></div>
+        <label>Copyable CSV record<textarea id="peer-record" class="record" readonly></textarea></label>
+
+        <hr style="margin:34px 0;border:0;border-top:1px solid var(--line)">
+        <h3>Aggregate actual peer-play evidence</h3>
+        <p class="lede">Repeat the four-person round under assigned Gain and Loss frames, then append each completed round or enter observations below. Use anonymous record IDs rather than names. The summary reports descriptive exploratory evidence, not population-level evidence.</p>
+        <div class="actions">
+          <button class="secondary" id="append-peer">Append settled four-person round</button>
+          <button class="secondary" id="add-evidence">Add four blank rows</button>
+          <button class="secondary" id="clear-evidence">Clear evidence log</button>
+          <button class="primary" id="analyze-evidence">Analyze entered observations</button>
+        </div>
+        <div class="table-wrap">
+          <table id="behavior-evidence-table">
+            <thead><tr><th>Anonymous record ID</th><th>Assigned frame</th><th>Private value v</th><th>Submitted bid b</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="behavior-evidence-output" class="result-box"></div>
+        <label>Copyable behavioral evidence summary<textarea id="behavior-evidence-record" class="record" readonly></textarea></label>
+      </article>
+    </section>
+
+    <section id="evidence" class="panel">
+      <article class="section-card">
+        <h2>Evidence and interpretation</h2>
+        <p class="lede">The completed computational evidence uses 1,000 independent matched batches with seed <code>20260926</code>, <code>N=20</code>, <code>K=4</code>, <code>R=1</code>, <code>r*=60</code>, <code>λ=1</code>, and assumed bids <code>b=0.8v</code>.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rule</th><th>V</th><th>C</th><th>W</th><th>Payments P</th><th>PM utility U</th></tr></thead>
+            <tbody>
+              <tr><td>Pure first-price auction</td><td>353.08</td><td>101.35</td><td>454.43</td><td>282.46</td><td>70.62</td></tr>
+              <tr><td>Hybrid</td><td>326.26</td><td>137.95</td><td>464.20</td><td>226.98</td><td>99.28</td></tr>
+              <tr><td>FCFS</td><td>199.45</td><td>100.43</td><td>299.88</td><td>0.00</td><td>199.45</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid-3">
+          <div class="metric"><strong>+36.59</strong><span>Hybrid risk-coverage gain versus pure first-price auction</span></div>
+          <div class="metric"><strong>−26.82</strong><span>Hybrid private-value difference versus pure first-price auction</span></div>
+          <div class="metric"><strong>+9.78</strong><span>Mean ΔW at λ=1; Monte Carlo SE 0.89</span></div>
+        </div>
+        <div class="warning"><strong>Scope:</strong> Mean ΔW is −8.52 at λ=0.5, and the ratio-of-means break-even weight is 0.733. Only 43.8% of primary batches strictly improve W at λ=1. <strong>Average advantage ≠ state-by-state dominance.</strong> Under negative value–risk rank alignment, mean ΔW is −3.24 at λ=1. Risk coverage is not avoided financial loss.</div>
+        <h3 style="margin-top:28px">Behavioral decision rule</h3>
+        <p>Actual peer-play evidence has not yet been entered in this public artifact. Use the aggregate log in <strong>Peer play</strong> to report sample size, Gain/Loss mean <code>b/v</code>, distance from the <code>0.75</code> benchmark, and overbid/underbid counts.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Observation</th><th>Response</th></tr></thead>
+            <tbody>
+              <tr><td>Loss-frame bids are systematically higher with fixed payoffs</td><td><strong>Qualify:</strong> test whether the change affects payments or allocation.</td></tr>
+              <tr><td>Bids remain close to 0.75v in both frames</td><td><strong>Retain:</strong> keep the single-slot benchmark as a working reference with its assumptions stated.</td></tr>
+              <tr><td>Both frames depart materially from the benchmark</td><td><strong>Revise / investigate:</strong> reconsider the assumed bid rule or decision interface.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="formula"><strong>Interdisciplinary integration:</strong> The behavioral task estimates a human bidding pattern relative to <code>0.75v</code>. That pattern can then replace or supplement the assumed <code>0.8v</code> rule in a labeled GitHub sensitivity rerun of Pure first-price versus Hybrid. The mechanism conclusion is revised only after the rerun.</div>
+        <div class="formula"><strong>Privacy boundary:</strong> This page makes no external network requests and stores no server-side research dataset. Do not enter personal names, portfolio positions, firm data, or other sensitive information.</div>
+      </article>
+    </section>
+
+    <section id="methods" class="panel">
+      <article class="section-card">
+        <h2>Methods and sources</h2>
+        <div class="split">
+          <div>
+            <h3>Three connected lenses</h3>
+            <ul>
+              <li><strong>Economics</strong> defines incentives and the value–risk trade-off.</li>
+              <li><strong>Computation</strong> compares matched allocations and sensitivity conditions.</li>
+              <li><strong>Behavioral science</strong> probes whether fixed-payoff framing changes bids enough to affect the comparison.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Baseline limits</h3>
+            <ul>
+              <li>Synthetic private values and public fixed risk scores</li>
+              <li>No common financial values or future rounds</li>
+              <li>No strategic score manipulation or endogenous arrival</li>
+              <li>The multi-slot <code>0.8v</code> bid rule is assumed, not solved as equilibrium</li>
+              <li>The exact <code>0.75v</code> BNE belongs only to the separate four-bidder single-slot benchmark</li>
+              <li>Lower fixed PM ID breaks exact ties in arrivals, risk scores, and bids</li>
+            </ul>
+          </div>
+        </div>
+        <h3 style="margin-top:28px">Proposal sources</h3>
+        <ol>
+          <li>Harsanyi (1968), <em>Games with Incomplete Information Played by Bayesian Players, II</em>. <a href="https://doi.org/10.1287/mnsc.14.5.320" target="_blank" rel="noopener">DOI</a></li>
+          <li>Pathak et al. (2023), <em>Fair Allocation of Vaccines, Ventilators and Antiviral Treatments</em>. <a href="https://arxiv.org/abs/2008.00374" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Sheng et al. (2026), <em>Generative AI and Asset Management</em>. <a href="https://doi.org/10.1093/rfs/hhag050" target="_blank" rel="noopener">DOI</a></li>
+          <li>Sivan et al. (2026), <em>Quota Marketplace: Dynamic Pricing for Efficient Allocation of ML Training Resources</em>. <a href="https://arxiv.org/abs/2607.09802" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Stokely et al. (2009), <em>Using a Market Economy to Provision Compute Resources Across Planet-wide Clusters</em>. <a href="https://research.google/pubs/using-a-market-economy-to-provision-compute-resources-across-planet-wide-clusters/" target="_blank" rel="noopener">Google Research</a></li>
+          <li>Vickrey (1961), <em>Counterspeculation, Auctions, and Competitive Sealed Tenders</em>. <a href="https://doi.org/10.1111/j.1540-6261.1961.tb02789.x" target="_blank" rel="noopener">DOI</a></li>
+        </ol>
+      </article>
+    </section>
+
+    <footer class="footer">Team FP8 · Zhenning Wang and Qianshuo (Aaron) Wang · COMSCI/ECON 206 · Behavioral evidence remains awaiting actual peer-play records; entered observations are descriptive and exploratory.</footer>
+  </main>
+
+  <script>
+    const N = 20, K = 4, R = 1, THRESHOLD = 60, BID_FACTOR = 0.8;
+    const batchBody = document.querySelector('#batch-table tbody');
+    const peerBody = document.querySelector('#peer-table tbody');
+    const behaviorEvidenceBody = document.querySelector('#behavior-evidence-table tbody');
+    let evidenceRowCounter = 0;
+    let lastPeerPlayers = null;
+    let lastPeerFrame = null;
+
+    function rngFromSeed(seed) {
+      let state = (Number(seed) || 0) >>> 0;
+      return function () {
+        state += 0x6D2B79F5;
+        let t = state;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function esc(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    }
+
+    function format(value, digits = 2) { return Number(value).toFixed(digits); }
+
+    function makeTable(headers, rows) {
+      return `<div class="table-wrap"><table><thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(cell => `<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    }
+
+    document.querySelectorAll('.tabbar button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.tabbar button').forEach(b => b.classList.toggle('active', b === button));
+        document.querySelectorAll('.panel').forEach(panel => panel.classList.toggle('active', panel.id === button.dataset.panel));
+        window.scrollTo({top: document.querySelector('.tabbar').offsetTop - 6, behavior: 'smooth'});
+      });
+    });
+
+    function generateBatch() {
+      const rng = rngFromSeed(document.querySelector('#batch-seed').value);
+      const arrivals = Array.from({length: N}, (_, i) => i + 1);
+      for (let i = arrivals.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [arrivals[i], arrivals[j]] = [arrivals[j], arrivals[i]];
+      }
+      batchBody.innerHTML = Array.from({length: N}, (_, i) => {
+        const id = `PM${String(i + 1).padStart(2, '0')}`;
+        const v = (rng() * 100).toFixed(2);
+        const e = rng().toFixed(3);
+        const s = rng().toFixed(3);
+        return `<tr><td><input aria-label="PM ID ${i+1}" value="${id}"></td><td><input aria-label="Arrival ${i+1}" type="number" min="1" max="20" value="${arrivals[i]}"></td><td><input aria-label="Value ${i+1}" type="number" min="0" max="100" step="0.01" value="${v}"></td><td><input aria-label="Exposure ${i+1}" type="number" min="0" max="1" step="0.001" value="${e}"></td><td><input aria-label="Severity ${i+1}" type="number" min="0" max="1" step="0.001" value="${s}"></td></tr>`;
+      }).join('');
+      document.querySelector('#comparison-note').innerHTML = '';
+      document.querySelector('#summary-output').innerHTML = '';
+      document.querySelector('#winner-output').innerHTML = '';
+    }
+
+    function getBatch() {
+      const rows = [...batchBody.querySelectorAll('tr')];
+      if (rows.length !== N) throw new Error('The baseline requires exactly 20 PM rows.');
+      const seen = new Set();
+      return rows.map((row, i) => {
+        const values = [...row.querySelectorAll('input')].map(input => input.value.trim());
+        const [pm, arrivalText, vText, eText, sText] = values;
+        const arrival = Number(arrivalText), v = Number(vText), e = Number(eText), s = Number(sText);
+        if (!pm || seen.has(pm)) throw new Error(`Row ${i+1}: PM IDs must be nonempty and unique.`);
+        seen.add(pm);
+        if (!Number.isInteger(arrival) || arrival < 1 || arrival > 20) throw new Error(`Row ${i+1}: arrival must be an integer from 1 to 20.`);
+        if (![v,e,s].every(Number.isFinite) || v < 0 || v > 100 || e < 0 || e > 1 || s < 0 || s > 1) throw new Error(`Row ${i+1}: check v ∈ [0,100] and E,S ∈ [0,1].`);
+        return {pm, arrival, v, e, s, r: 100*e*s, b: BID_FACTOR*v};
+      });
+    }
+
+    function allocationResult(name, winners, requests, lambda) {
+      let V=0, C=0, P=0, U=0, eligibleWinners=0;
+      const winnerRows = winners.map(({request, channel}) => {
+        const payment = channel === 'Auction' ? request.b : 0;
+        const utility = request.v - payment;
+        V += request.v; C += request.r; P += payment; U += utility;
+        if (request.r >= THRESHOLD) eligibleWinners++;
+        return [name, request.pm, channel, format(request.v), format(request.r), format(request.b), format(payment), format(utility)];
+      });
+      const topV = [...requests].sort((a,b) => b.v-a.v || a.pm.localeCompare(b.pm)).slice(0,K).reduce((sum,x)=>sum+x.v,0);
+      const eligibleCount = requests.filter(x => x.r >= THRESHOLD).length;
+      return {
+        name, V, C, W: V + lambda*C, P, U,
+        efficiency: topV ? V/topV : 1,
+        eligibleAccess: eligibleCount ? eligibleWinners/eligibleCount : null,
+        winnerRows
+      };
+    }
+
+    function runComparison() {
+      const note = document.querySelector('#comparison-note');
+      try {
+        const requests = getBatch();
+        const lambda = Number(document.querySelector('#lambda').value);
+        const byBid = (a,b) => b.b-a.b || a.pm.localeCompare(b.pm);
+        const fcfs = [...requests].sort((a,b) => a.arrival-b.arrival || a.pm.localeCompare(b.pm)).slice(0,K);
+        const pure = [...requests].sort(byBid).slice(0,K);
+        const eligible = requests.filter(x => x.r >= THRESHOLD).sort((a,b) => b.r-a.r || a.pm.localeCompare(b.pm));
+        const reserves = eligible.slice(0,R);
+        const reserveIds = new Set(reserves.map(x => x.pm));
+        const auctionCapacity = K - reserves.length;
+        const auctionWinners = requests.filter(x => !reserveIds.has(x.pm)).sort(byBid).slice(0,auctionCapacity);
+        const results = [
+          allocationResult('FCFS', fcfs.map(request => ({request, channel:'FCFS'})), requests, lambda),
+          allocationResult('Pure first-price auction', pure.map(request => ({request, channel:'Auction'})), requests, lambda),
+          allocationResult('Hybrid', [...reserves.map(request => ({request, channel:'Risk reserve'})), ...auctionWinners.map(request => ({request, channel:'Auction'}))], requests, lambda)
+        ];
+        const p = results[1], h = results[2];
+        const L = p.V-h.V, dC = h.C-p.C, dW = h.W-p.W;
+        let condition;
+        if (dC > 0) condition = `L = ${format(L)}, ΔC = ${format(dC)}, and L/ΔC = ${format(L/dC,3)}.`;
+        else if (L >= 0) condition = `L = ${format(L)} and ΔC = ${format(dC)}; the hybrid adds no risk coverage while displacing weakly more private value.`;
+        else condition = `L = ${format(L)} and ΔC = ${format(dC)}; the simple positive-gain threshold case does not apply.`;
+        const reserveMessage = reserves.length ? `${esc(reserves[0].pm)} receives the zero-payment risk reserve and exits before bidding.` : 'No request meets r ≥ 60, so the reserved slot returns to the auction.';
+        note.innerHTML = `<h3>Matched-batch interpretation</h3><p>${reserveMessage}</p><p>${condition} At λ=${lambda}, hybrid W is <strong>${format(Math.abs(dW))} points ${dW>0?'higher':dW<0?'lower':'equal'}</strong> than pure first-price auction W.</p><p><small>This is one browser-generated synthetic batch. Risk coverage is not avoided financial loss.</small></p>`;
+        document.querySelector('#summary-output').innerHTML = '<h3>Mechanism-level results</h3>' + makeTable(['Mechanism','V','C','W','Payments P','PM utility U','Value efficiency','Eligible access'], results.map(x => [x.name,format(x.V),format(x.C),format(x.W),format(x.P),format(x.U),format(x.efficiency,3),x.eligibleAccess===null?'NA':format(x.eligibleAccess,3)]));
+        document.querySelector('#winner-output').innerHTML = '<h3>Selected PMs</h3>' + makeTable(['Mechanism','PM ID','Channel','v','r','b','Payment','Utility'], results.flatMap(x => x.winnerRows));
+      } catch (error) {
+        note.innerHTML = `<strong>Check the inputs:</strong> ${esc(error.message)}`;
+      }
+    }
+
+    function updateFramePrompt() {
+      const frame = document.querySelector('#frame').value;
+      const v = Number(document.querySelector('#self-value').value) || 0;
+      const sentence = frame === 'Loss frame'
+        ? `You have ${format(v,0)} payoff credits at risk. Winning lets you keep ${format(v,0)} minus your bid; losing leaves a payoff of 0.`
+        : `The AI research slot offers ${format(v,0)} payoff credits. Winning gives you ${format(v,0)} minus your bid; losing gives a payoff of 0.`;
+      document.querySelector('#frame-prompt').innerHTML = `<strong>Assigned decision:</strong> ${sentence} Four PMs submit sealed bids; the highest bid wins and pays its own bid.`;
+    }
+
+    function settleSelf() {
+      const v = Number(document.querySelector('#self-value').value);
+      const bid = Number(document.querySelector('#self-bid').value);
+      if (![v,bid].every(Number.isFinite) || v<0 || v>100 || bid<0 || bid>100) {
+        document.querySelector('#self-outcome').innerHTML = '<strong>Check the inputs:</strong> value and bid must be between 0 and 100.';
+        return;
+      }
+      const rng = rngFromSeed(document.querySelector('#opponent-seed').value);
+      const players = [{pm:'You',v,b:bid}, ...[1,2,3].map(i => { const value=rng()*100; return {pm:`Computer ${i}`,v:value,b:.75*value}; })];
+      const ordered = players.map((p,i)=>({p,i})).sort((a,b)=>b.p.b-a.p.b || a.i-b.i);
+      const winnerIndex = ordered[0].i, winner = players[winnerIndex], bestV = Math.max(...players.map(x=>x.v));
+      const rows = players.map((p,i) => {
+        const won=i===winnerIndex, payment=won?p.b:0, utility=won?p.v-payment:0, benchmark=.75*p.v;
+        return [p.pm,format(p.v),format(p.b),format(benchmark),`${p.b-benchmark>=0?'+':''}${format(p.b-benchmark)}`,won?'Yes':'No',format(payment),format(utility)];
+      });
+      const won = winnerIndex===0, utility=won?v-bid:0, benchmark=.75*v, efficiency=bestV?winner.v/bestV:1;
+      document.querySelector('#self-outcome').innerHTML = `<h3>Round result</h3><p><strong>${esc(winner.pm)}</strong> wins with a bid of ${format(winner.b)}. You ${won?'win':'do not win'}; your payment is ${format(won?bid:0)} and utility is ${format(utility)}.</p><p>Your BNE benchmark is ${format(benchmark)} and your deviation is ${bid-benchmark>=0?'+':''}${format(bid-benchmark)}. Allocation efficiency is ${format(efficiency,3)}.</p><small>One round is exploratory evidence, not a population estimate.</small>`;
+      document.querySelector('#self-table').innerHTML = makeTable(['PM ID','v','Bid','BNE 0.75v','Deviation','Winner','Payment','Utility'],rows);
+      const lines = [
+        'FP8 behavioral round record',
+        `Treatment: ${document.querySelector('#frame').value}`,
+        'Rule: one-slot sealed-bid first-price; highest bid wins and pays own bid',
+        `Private value: ${format(v)}`,
+        `Actual bid: ${format(bid)}`,
+        `BNE benchmark: ${format(benchmark)}`,
+        `Deviation: ${bid-benchmark>=0?'+':''}${format(bid-benchmark)}`,
+        `Outcome: ${won?'win':'lose'}`,
+        `Payment: ${format(won?bid:0)}`,
+        `Utility: ${format(utility)}`,
+        `Revenue: ${format(winner.b)}`,
+        `Allocation efficiency: ${format(efficiency,3)}`,
+        `Pre-choice reason: ${document.querySelector('#self-reason').value}`,
+        `Confidence: ${document.querySelector('#confidence').value}/100`,
+        `Post-choice reflection: ${document.querySelector('#self-reflection').value.trim() || '[not entered]'}`,
+        'Evidence status: exploratory self-reflection; not population-level validation'
+      ];
+      document.querySelector('#self-record').value=lines.join('\n');
+    }
+
+    function makePeerRows() {
+      const defaults=[['PM A',80,60],['PM B',72,54],['PM C',61,45.75],['PM D',45,33.75]];
+      peerBody.innerHTML=defaults.map((r,i)=>`<tr><td><input aria-label="Peer PM ${i+1}" value="${r[0]}"></td><td><input aria-label="Peer value ${i+1}" type="number" min="0" max="100" value="${r[1]}"></td><td><input aria-label="Peer bid ${i+1}" type="number" min="0" max="100" step="0.01" value="${r[2]}"></td></tr>`).join('');
+    }
+
+    function addEvidenceRows(count=4, observations=[]) {
+      const rows = observations.length ? observations : Array.from({length:count}, () => null);
+      rows.forEach(observation => {
+        evidenceRowCounter++;
+        const frame = observation?.frame || 'Gain frame';
+        const recordId = observation?.id || `R${String(evidenceRowCounter).padStart(2,'0')}`;
+        const value = observation ? format(observation.v) : '';
+        const bid = observation ? format(observation.b) : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><input aria-label="Evidence record ID ${evidenceRowCounter}" value="${esc(recordId)}"></td><td><select aria-label="Evidence frame ${evidenceRowCounter}"><option${frame==='Gain frame'?' selected':''}>Gain frame</option><option${frame==='Loss frame'?' selected':''}>Loss frame</option></select></td><td><input aria-label="Evidence value ${evidenceRowCounter}" type="number" min="0.01" max="100" step="0.01" value="${value}"></td><td><input aria-label="Evidence bid ${evidenceRowCounter}" type="number" min="0" max="100" step="0.01" value="${bid}"></td>`;
+        behaviorEvidenceBody.appendChild(tr);
+      });
+    }
+
+    function clearEvidenceRows() {
+      behaviorEvidenceBody.innerHTML='';
+      evidenceRowCounter=0;
+      addEvidenceRows(8);
+      document.querySelector('#behavior-evidence-output').innerHTML='';
+      document.querySelector('#behavior-evidence-record').value='';
+    }
+
+    function appendPeerRound() {
+      const out=document.querySelector('#behavior-evidence-output');
+      if(!lastPeerPlayers) {
+        out.innerHTML='<strong>Settle the four-person peer round first.</strong> Then append its actual values and bids.';
+        return;
+      }
+      addEvidenceRows(4,lastPeerPlayers.map((player,index)=>({
+        id:`G${Math.floor((evidenceRowCounter+4)/4)}-P${index+1}`,
+        frame:lastPeerFrame,
+        v:player.v,
+        b:player.b
+      })));
+      out.innerHTML=`<strong>Added four ${esc(lastPeerFrame)} observations.</strong> Analyze after entering all completed rounds.`;
+    }
+
+    function analyzeBehaviorEvidence() {
+      const out=document.querySelector('#behavior-evidence-output');
+      try {
+        const seen=new Set();
+        const observations=[];
+        [...behaviorEvidenceBody.querySelectorAll('tr')].forEach((row,index)=>{
+          const [idInput,frameSelect,vInput,bInput]=row.querySelectorAll('input,select');
+          const id=idInput.value.trim(), frame=frameSelect.value;
+          const vText=vInput.value.trim(), bText=bInput.value.trim();
+          if(!vText && !bText) return;
+          if(!id || seen.has(id)) throw new Error(`Evidence row ${index+1}: record IDs must be nonempty and unique.`);
+          seen.add(id);
+          const v=Number(vText), b=Number(bText);
+          if(!Number.isFinite(v)||!Number.isFinite(b)||v<=0||v>100||b<0||b>100) throw new Error(`Evidence row ${index+1}: use 0 < v ≤ 100 and 0 ≤ b ≤ 100.`);
+          observations.push({id,frame,v,b,ratio:b/v});
+        });
+        if(!observations.length) throw new Error('Enter at least one actual peer-play observation. Blank rows are ignored.');
+
+        const summarize = (label,items) => {
+          if(!items.length) return [label,0,'NA','NA','NA',0,0,0];
+          const mean=items.reduce((sum,x)=>sum+x.ratio,0)/items.length;
+          const mad=items.reduce((sum,x)=>sum+Math.abs(x.ratio-.75),0)/items.length;
+          const over=items.filter(x=>x.ratio>.75+1e-9).length;
+          const under=items.filter(x=>x.ratio<.75-1e-9).length;
+          return [label,items.length,format(mean,3),`${mean-.75>=0?'+':''}${format(mean-.75,3)}`,format(mad,3),over,under,items.length-over-under];
+        };
+        const gain=observations.filter(x=>x.frame==='Gain frame');
+        const loss=observations.filter(x=>x.frame==='Loss frame');
+        const summaryRows=[summarize('Gain frame',gain),summarize('Loss frame',loss),summarize('Pooled',observations)];
+        let comparison='Collect observations under both assigned frames before making a descriptive framing comparison.';
+        if(gain.length&&loss.length) {
+          const gainMean=gain.reduce((s,x)=>s+x.ratio,0)/gain.length;
+          const lossMean=loss.reduce((s,x)=>s+x.ratio,0)/loss.length;
+          const difference=lossMean-gainMean;
+          comparison=`Loss minus Gain mean b/v is <strong>${difference>=0?'+':''}${format(difference,3)}</strong>. This is a descriptive difference in a small exploratory sample, not a causal or population-level estimate.`;
+        }
+        out.innerHTML=`<h3>Exploratory behavioral summary</h3>${makeTable(['Frame','n','Mean b/v','Mean − 0.75','Mean absolute distance','Overbid','Underbid','At benchmark'],summaryRows)}<p>${comparison}</p><p><strong>Decision prompt:</strong> use the pre-stated Retain / Qualify / Revise rule, then test any changed bid assumption in a labeled Pure-versus-Hybrid sensitivity rerun.</p>`;
+
+        const lines=['FP8 exploratory behavioral evidence summary','Evidence status: exploratory peer-play evidence; not population-level evidence',`Total sample size: ${observations.length}`];
+        summaryRows.forEach(row=>lines.push(`${row[0]}: n=${row[1]}, mean b/v=${row[2]}, mean minus 0.75=${row[3]}, mean absolute distance=${row[4]}, overbid=${row[5]}, underbid=${row[6]}, at benchmark=${row[7]}`));
+        if(gain.length&&loss.length) {
+          const gm=gain.reduce((s,x)=>s+x.ratio,0)/gain.length;
+          const lm=loss.reduce((s,x)=>s+x.ratio,0)/loss.length;
+          lines.push(`Loss minus Gain mean b/v: ${lm-gm>=0?'+':''}${format(lm-gm,3)}`);
+        }
+        lines.push('Interpretation boundary: descriptive small-sample evidence; same numerical payoff and rules across frames; no population claim.');
+        lines.push('Next step: record Keep/Qualify/Revise decision and, if needed, rerun Pure first-price versus Hybrid with a labeled human-informed bid coefficient.');
+        document.querySelector('#behavior-evidence-record').value=lines.join('\n');
+      } catch(error) {
+        out.innerHTML=`<strong>Check the evidence log:</strong> ${esc(error.message)}`;
+      }
+    }
+
+    function settlePeer() {
+      const out=document.querySelector('#peer-outcome');
+      try {
+        const seen=new Set();
+        const players=[...peerBody.querySelectorAll('tr')].map((row,i)=>{
+          const [pmInput,vInput,bInput]=row.querySelectorAll('input');
+          const pm=pmInput.value.trim(), v=Number(vInput.value), b=Number(bInput.value);
+          if(!pm||seen.has(pm)) throw new Error('PM IDs must be nonempty and unique.');
+          seen.add(pm);
+          if(![v,b].every(Number.isFinite)||v<0||v>100||b<0||b>100) throw new Error(`Row ${i+1}: value and bid must be between 0 and 100.`);
+          return {pm,v,b};
+        });
+        lastPeerPlayers=players.map(player=>({...player}));
+        lastPeerFrame=document.querySelector('#peer-frame').value;
+        const ordered=players.map((p,i)=>({p,i})).sort((a,b)=>b.p.b-a.p.b||a.i-b.i);
+        const winnerIndex=ordered[0].i, winner=players[winnerIndex], bestV=Math.max(...players.map(x=>x.v)), efficiency=bestV?winner.v/bestV:1;
+        const rows=players.map((p,i)=>{const won=i===winnerIndex, benchmark=.75*p.v,payment=won?p.b:0,utility=won?p.v-payment:0;return[p.pm,format(p.v),format(p.b),format(benchmark),`${p.b-benchmark>=0?'+':''}${format(p.b-benchmark)}`,won?'Yes':'No',format(payment),format(utility)];});
+        out.innerHTML=`<h3>Peer-round result</h3><p><strong>${esc(winner.pm)}</strong> wins and pays ${format(winner.b)}. Revenue is ${format(winner.b)} and allocation efficiency is ${format(efficiency,3)}.</p><small>The round may motivate Keep / Qualify / Revise, but cannot establish a framing effect by itself.</small>`;
+        document.querySelector('#peer-results').innerHTML=makeTable(['PM ID','v','Bid','BNE 0.75v','Deviation','Winner','Payment','Utility'],rows);
+        const csv=[['treatment',document.querySelector('#peer-frame').value],['rule','single-slot sealed-bid first-price'],[],['PM ID','v','Bid','BNE benchmark','Deviation','Winner','Payment','Utility'],...rows,[],['winner',winner.pm],['revenue',format(winner.b)],['allocation_efficiency',format(efficiency,3)],['peer_observation',document.querySelector('#peer-note').value.trim()||'[not entered]'],['evidence_status','exploratory peer play; not population-level validation']];
+        document.querySelector('#peer-record').value=csv.map(row=>row.map(cell=>`"${String(cell).replaceAll('"','""')}"`).join(',')).join('\n');
+      } catch(error) { out.innerHTML=`<strong>Check the inputs:</strong> ${esc(error.message)}`; }
+    }
+
+    document.querySelector('#generate-batch').addEventListener('click',generateBatch);
+    document.querySelector('#run-comparison').addEventListener('click',runComparison);
+    document.querySelector('#frame').addEventListener('change',updateFramePrompt);
+    document.querySelector('#self-value').addEventListener('input',updateFramePrompt);
+    document.querySelector('#confidence').addEventListener('input',event=>document.querySelector('#confidence-label').textContent=event.target.value);
+    document.querySelector('#settle-self').addEventListener('click',settleSelf);
+    document.querySelector('#settle-peer').addEventListener('click',settlePeer);
+    document.querySelector('#append-peer').addEventListener('click',appendPeerRound);
+    document.querySelector('#add-evidence').addEventListener('click',()=>addEvidenceRows(4));
+    document.querySelector('#clear-evidence').addEventListener('click',clearEvidenceRows);
+    document.querySelector('#analyze-evidence').addEventListener('click',analyzeBehaviorEvidence);
+
+    generateBatch();
+    makePeerRows();
+    addEvidenceRows(8);
+    updateFramePrompt();
+  </script>
+</body>
+</html>
