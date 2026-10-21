@@ -149,7 +149,7 @@ that Pure, Hybrid, and FCFS outcomes can be compared on matched requests.
 | **Fresh Run Metadata** | [`fresh_run.json`](fresh_run.json) | Available |
 | **Final Paper** | [View final paper](paper/Final-FP08-Qianshuo-Zhenning.pdf) | Available |
 | **Final A0 Poster** | [PDF](poster/FP08_Final_A0_Poster.pdf) · [PNG](poster/FP08_Final_A0_Poster.png) · [Editable PPTX](poster/FP08_Final_A0_Poster.pptx) | Available |
-| **Final Tested Release** | Final synchronized commit/tag to be recorded | Pending |
+| **Final Tested Release** | [`ac2fbf5`](https://github.com/dku-comsci-econ206-Autumn2026/PS2_FP8_Qianshuo_Zhenning/commit/ac2fbf5eb3da11543c49f481aea257eaee097373) | Final |
 ---
 
 ## Primary Computational Design
